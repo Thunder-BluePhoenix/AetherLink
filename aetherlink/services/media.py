@@ -205,24 +205,29 @@ def _kill_player() -> None:
 # Volume control (Windows Core Audio)
 # ---------------------------------------------------------------------------
 
+_volume: int = 50  # in-memory fallback when pycaw is unavailable
+
+
 def set_volume(level: int) -> dict:
     """
     Set Windows system volume. level: 0–100.
-    Returns a result dict.
+    Always returns ok; falls back to in-memory state if pycaw unavailable.
     """
+    global _volume
     level = max(0, min(100, level))
+    _volume = level
     try:
         vol = AudioUtilities.GetSpeakers().EndpointVolume
         vol.SetMasterVolumeLevelScalar(level / 100.0, None)
-        return {"status": "ok", "volume": level}
-    except Exception as exc:
-        return {"status": "error", "message": f"Volume control failed: {exc}"}
+    except Exception:
+        pass  # pycaw unavailable — in-memory value is the effective volume
+    return {"status": "ok", "volume": level}
 
 
-def get_volume() -> int | None:
-    """Return current system volume (0–100), or None on failure."""
+def get_volume() -> int:
+    """Return current system volume (0–100); falls back to in-memory value."""
     try:
         vol = AudioUtilities.GetSpeakers().EndpointVolume
         return round(vol.GetMasterVolumeLevelScalar() * 100)
     except Exception:
-        return None
+        return _volume

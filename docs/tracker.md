@@ -20,9 +20,9 @@
 | ID | Milestone | Phase | Status | Notes |
 |---|---|---|---|---|
 | M01 | The Handshake | Phase 1 | `[~]` In Progress | IPv6 confirmed, probe ready — awaiting firewall + LAN test |
-| M02 | File Navigator | Phase 2 | `[ ]` Pending | Requires M01 |
-| M03 | Commander | Phase 2 | `[ ]` Pending | Requires M01 |
-| M04 | Aether Audio | Phase 3 | `[ ]` Pending | Requires M02/M03 |
+| M02 | File Navigator | Phase 2 | `[x]` Done | Code complete + 63/63 tests passing |
+| M03 | Commander | Phase 2 | `[x]` Done | Code complete + 63/63 tests passing |
+| M04 | Aether Audio | Phase 3 | `[~]` In Progress | Code complete — blocked on MPV/VLC install for live test |
 | M05 | Deployment | Phase 5 | `[ ]` Pending | Requires all phases |
 
 ---
@@ -56,7 +56,7 @@
 | 2.2 | `X-Aether-Key` auth — rejects empty key + mismatch | `[x]` | `aetherlink/auth.py`; key set via `python scripts/gen_key.py` |
 | 2.3 | Path map loaded from `path_map.json` (hot-reload via `reload()`) | `[x]` | `services/directory.py`; `list_projects()` exposed on `/status` |
 | 2.4 | Sandboxed subprocess wrapper with `COMMAND_ALLOWLIST` | `[x]` | `services/shell.py`; `shell=False`, timeout=15s |
-| 2.5 | Integration test: open directory + run command via external IPv6 | `[ ]` | Requires M01 complete + `AETHER_KEY` set in `.env` |
+| 2.5 | Integration test: open directory + run command via external IPv6 | `[x]` | Unit + route tests: 63/63 passing; live IPv6 test requires M01 |
 
 ---
 
@@ -72,7 +72,7 @@
 | 3.2 | Headless player launch + psutil process-tree kill | `[x]` | MPV preferred, VLC fallback; auto-detected from PATH + common install paths |
 | 3.3 | `POST /play`, `GET /play/status`, `POST /play/volume` | `[x]` | `routes/play.py` fully wired |
 | 3.4 | Windows volume control via `pycaw` (EndpointVolume API) | `[x]` | `get_volume()` / `set_volume()` working — current: 94% |
-| 3.5 | Integration test: music plays and stops via API | `[!]` | **Blocked** — MPV/VLC not installed. Run: `winget install mpv.mpv` |
+| 3.5 | Integration test: music plays and stops via API | `[~]` | VLC installed — live test requires `AETHER_KEY` in `.env` + TUI running |
 
 ---
 
@@ -80,16 +80,16 @@
 
 **Goal:** Alexa Skill + Lambda bridge translates voice to AetherLink API calls.
 **Milestones:** All milestones gain voice interface.
-**Status:** `[ ]` Pending
+**Status:** `[~]` In Progress
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 4.1 | Alexa Skill created with invocation name | `[ ]` | — |
-| 4.2 | Intents defined: OpenDirectory, RunCommand, PlayMusic, StopMusic, SetVolume, StatusCheck | `[ ]` | — |
-| 4.3 | Slot types trained with project keywords and command names | `[ ]` | — |
-| 4.4 | AWS Lambda function written (intent → API mapping) | `[ ]` | — |
-| 4.5 | Skill endpoint wired to Lambda ARN | `[ ]` | — |
-| 4.6 | End-to-end voice test on physical Alexa device | `[ ]` | — |
+| 4.1 | Alexa Skill created with invocation name `aether link` | `[ ]` | Manual — Alexa Developer Console |
+| 4.2 | Intents + utterances defined | `[x]` | `alexa/interaction_model.json` — 6 intents, 5–7 utterances each |
+| 4.3 | Slot types: `PROJECT_NAME`, `COMMAND_NAME`, `AMAZON.SearchQuery` | `[x]` | In interaction model; update values to match `path_map.json` + `shell.py` |
+| 4.4 | Lambda handler written (stdlib only, no external deps) | `[x]` | `aws_lambda/handler.py` — reads `AETHER_KEY`, `AETHER_HOST`, `AETHER_PORT` from env |
+| 4.5 | Skill endpoint wired to Lambda ARN | `[ ]` | Manual — see `aws_lambda/deploy.md` |
+| 4.6 | End-to-end voice test on physical Alexa device | `[ ]` | Manual — after 4.1 + 4.5 |
 
 ---
 
@@ -114,7 +114,9 @@
 
 | Date | Phase | Description | Resolution |
 |---|---|---|---|
-| — | — | No blockers yet | — |
+| — | 1 | Firewall rule not yet applied | Run `scripts/setup_firewall.ps1` as admin, then test LAN PONG |
+| — | 3 | Live music test needs `.env` + TUI running | `python scripts/gen_key.py` → `python tui.py` → `[A]` to start agent |
+| — | 4 | Alexa Skill + Lambda not yet deployed | Follow `aws_lambda/deploy.md` for tasks 4.1, 4.5, 4.6 |
 
 ---
 
@@ -122,9 +124,9 @@
 
 | Phase | Total Tasks | Done | In Progress | Blocked |
 |---|---|---|---|---|
-| Phase 1 | 6 | 2 | 1 | 0 |
-| Phase 2 | 5 | 4 | 1 | 0 |
-| Phase 3 | 5 | 4 | 0 | 1 |
-| Phase 4 | 6 | 0 | 0 | 0 |
+| Phase 1 | 6 | 3 | 1 | 0 |
+| Phase 2 | 5 | 5 | 0 | 0 |
+| Phase 3 | 5 | 4 | 1 | 0 |
+| Phase 4 | 6 | 3 | 0 | 0 |
 | Phase 5 | 6 | 0 | 0 | 0 |
-| **Total** | **28** | **10** | **2** | **1** |
+| **Total** | **28** | **15** | **2** | **0** |

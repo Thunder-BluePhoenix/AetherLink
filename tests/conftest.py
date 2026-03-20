@@ -15,19 +15,29 @@
 # limitations under the Licenses.
 
 """
-aetherlink/auth.py — Request authentication
-
-Verifies the X-Aether-Key header on every protected route.
-Returns 403 on mismatch — no detail leaked to the caller.
+tests/conftest.py — Shared pytest fixtures
 """
 
-from typing import Optional
+import pytest
+from fastapi.testclient import TestClient
 
-from fastapi import Header, HTTPException, status
-from .config import settings
+from aetherlink.config import settings
+from aetherlink.main import app
 
 
-async def verify_aether_key(x_aether_key: Optional[str] = Header(default=None)) -> None:
-    # Also reject if AETHER_KEY was never set in .env
-    if not x_aether_key or not settings.aether_key or x_aether_key != settings.aether_key:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+@pytest.fixture(scope="session")
+def client() -> TestClient:
+    """FastAPI test client — no real server started."""
+    return TestClient(app)
+
+
+@pytest.fixture(scope="session")
+def auth(client) -> dict:
+    """Valid X-Aether-Key header for protected routes."""
+    return {"X-Aether-Key": settings.aether_key}
+
+
+@pytest.fixture(scope="session")
+def bad_auth() -> dict:
+    """An intentionally wrong auth header."""
+    return {"X-Aether-Key": "00000000-0000-0000-0000-000000000000"}

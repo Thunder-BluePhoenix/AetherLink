@@ -1,0 +1,146 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "aether link",
+      "intents": [
+
+        {
+          "name": "OpenDirectory",
+          "slots": [
+            { "name": "ProjectName", "type": "PROJECT_NAME" }
+          ],
+          "samples": [
+            "open {ProjectName}",
+            "go to {ProjectName}",
+            "show {ProjectName} folder",
+            "launch {ProjectName}",
+            "navigate to {ProjectName}",
+            "take me to {ProjectName}",
+            "switch to {ProjectName}"
+          ]
+        },
+
+        {
+          "name": "RunCommand",
+          "slots": [
+            { "name": "CommandName", "type": "COMMAND_NAME" },
+            { "name": "ProjectName", "type": "PROJECT_NAME" }
+          ],
+          "samples": [
+            "run {CommandName} in {ProjectName}",
+            "execute {CommandName} in {ProjectName}",
+            "run {CommandName} on {ProjectName}",
+            "do {CommandName} in {ProjectName}",
+            "{CommandName} in {ProjectName}",
+            "run {CommandName} for {ProjectName}",
+            "execute {CommandName} for {ProjectName}"
+          ]
+        },
+
+        {
+          "name": "PlayMusic",
+          "slots": [
+            { "name": "SearchQuery", "type": "AMAZON.SearchQuery" }
+          ],
+          "samples": [
+            "play {SearchQuery}",
+            "play music {SearchQuery}",
+            "put on {SearchQuery}",
+            "start playing {SearchQuery}",
+            "search and play {SearchQuery}",
+            "stream {SearchQuery}",
+            "find and play {SearchQuery}"
+          ]
+        },
+
+        {
+          "name": "StopMusic",
+          "slots": [],
+          "samples": [
+            "stop the music",
+            "stop music",
+            "pause music",
+            "mute",
+            "stop playing",
+            "kill the music",
+            "silence"
+          ]
+        },
+
+        {
+          "name": "SetVolume",
+          "slots": [
+            { "name": "Level", "type": "AMAZON.NUMBER" }
+          ],
+          "samples": [
+            "set volume to {Level}",
+            "set volume to {Level} percent",
+            "volume {Level}",
+            "volume {Level} percent",
+            "turn the volume to {Level}",
+            "change volume to {Level}",
+            "make it {Level} percent"
+          ]
+        },
+
+        {
+          "name": "StatusCheck",
+          "slots": [],
+          "samples": [
+            "are you there",
+            "ping",
+            "hello",
+            "status",
+            "check status",
+            "are you online",
+            "are you running"
+          ]
+        },
+
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.FallbackIntent",
+          "samples": []
+        }
+
+      ],
+
+      "types": [
+
+        {
+          "name": "PROJECT_NAME",
+          "values": [
+            { "name": { "value": "AetherLink", "synonyms": ["aether link", "aether"] } },
+            { "name": { "value": "Andromeda",  "synonyms": ["andromeda project"] } }
+          ]
+        },
+
+        {
+          "name": "COMMAND_NAME",
+          "values": [
+            { "name": { "value": "git pull",      "synonyms": ["pull", "git pull latest"] } },
+            { "name": { "value": "git status",    "synonyms": ["status", "git check"] } },
+            { "name": { "value": "git log",       "synonyms": ["log", "git history"] } },
+            { "name": { "value": "git diff",      "synonyms": ["diff", "what changed"] } },
+            { "name": { "value": "npm start",     "synonyms": ["start", "npm run start", "start server"] } },
+            { "name": { "value": "npm install",   "synonyms": ["install", "npm i"] } },
+            { "name": { "value": "npm run build", "synonyms": ["build", "npm build"] } },
+            { "name": { "value": "pip install",   "synonyms": ["install requirements", "pip"] } }
+          ]
+        }
+
+      ]
+    }
+  }
+}
