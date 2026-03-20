@@ -1,0 +1,15 @@
+# --- Phase 1: TUI ---
+textual>=0.61.0
+
+# --- Phase 2: Local Agent ---
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic-settings==2.2.1
+
+# --- Phase 3: Media ---
+# yt-dlp==2024.5.27
+# pycaw==20240210
+# psutil==5.9.8
+
+# --- Phase 5: Windows Service ---
+# pywin32==306
