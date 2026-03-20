@@ -48,15 +48,15 @@
 
 **Goal:** FastAPI server with auth, path mapping, and sandboxed shell execution.
 **Milestones:** M02 — File Navigator, M03 — Commander
-**Status:** `[ ]` Pending
+**Status:** `[~]` In Progress
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 2.1 | FastAPI scaffold with `/status`, `/execute`, `/play` routes | `[ ]` | — |
-| 2.2 | `X-Aether-Key` authentication middleware | `[ ]` | — |
-| 2.3 | OS path mapping config (keywords → directories) | `[ ]` | — |
-| 2.4 | Sandboxed `subprocess.run` wrapper with allowlist | `[ ]` | — |
-| 2.5 | Integration test: open directory + run command via external IPv6 | `[ ]` | — |
+| 2.1 | FastAPI scaffold with `/status`, `/execute`, `/play` routes | `[x]` | All routes wired; `GET /execute/meta` exposes projects + commands |
+| 2.2 | `X-Aether-Key` auth — rejects empty key + mismatch | `[x]` | `aetherlink/auth.py`; key set via `python scripts/gen_key.py` |
+| 2.3 | Path map loaded from `path_map.json` (hot-reload via `reload()`) | `[x]` | `services/directory.py`; `list_projects()` exposed on `/status` |
+| 2.4 | Sandboxed subprocess wrapper with `COMMAND_ALLOWLIST` | `[x]` | `services/shell.py`; `shell=False`, timeout=15s |
+| 2.5 | Integration test: open directory + run command via external IPv6 | `[ ]` | Requires M01 complete + `AETHER_KEY` set in `.env` |
 
 ---
 
@@ -64,15 +64,15 @@
 
 **Goal:** Voice-triggered audio streaming via yt-dlp and headless player.
 **Milestone:** M04 — Aether Audio
-**Status:** `[ ]` Pending
+**Status:** `[~]` In Progress
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 3.1 | yt-dlp integration: search query → stream URL | `[ ]` | — |
-| 3.2 | Headless player (MPV/VLC) launch and PID tracking | `[ ]` | — |
-| 3.3 | `/play` route: play and stop actions | `[ ]` | — |
-| 3.4 | Windows volume control via `pycaw` | `[ ]` | — |
-| 3.5 | Integration test: music plays and stops via API | `[ ]` | — |
+| 3.1 | yt-dlp search query → stream URL | `[x]` | `_extract_stream()` in `services/media.py`; run via `asyncio.to_thread` |
+| 3.2 | Headless player launch + psutil process-tree kill | `[x]` | MPV preferred, VLC fallback; auto-detected from PATH + common install paths |
+| 3.3 | `POST /play`, `GET /play/status`, `POST /play/volume` | `[x]` | `routes/play.py` fully wired |
+| 3.4 | Windows volume control via `pycaw` (EndpointVolume API) | `[x]` | `get_volume()` / `set_volume()` working — current: 94% |
+| 3.5 | Integration test: music plays and stops via API | `[!]` | **Blocked** — MPV/VLC not installed. Run: `winget install mpv.mpv` |
 
 ---
 
@@ -123,8 +123,8 @@
 | Phase | Total Tasks | Done | In Progress | Blocked |
 |---|---|---|---|---|
 | Phase 1 | 6 | 2 | 1 | 0 |
-| Phase 2 | 5 | 0 | 0 | 0 |
-| Phase 3 | 5 | 0 | 0 | 0 |
+| Phase 2 | 5 | 4 | 1 | 0 |
+| Phase 3 | 5 | 4 | 0 | 1 |
 | Phase 4 | 6 | 0 | 0 | 0 |
 | Phase 5 | 6 | 0 | 0 | 0 |
-| **Total** | **28** | **2** | **1** | **0** |
+| **Total** | **28** | **10** | **2** | **1** |
