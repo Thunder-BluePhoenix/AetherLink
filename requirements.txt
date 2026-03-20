@@ -12,4 +12,4 @@ pycaw>=20240210
 psutil>=5.9.0
 
 # --- Phase 5: Windows Service ---
-# pywin32==306
+pywin32==306

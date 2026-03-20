@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AetherLink</title>
+<style>
+  :root {
+    --bg:       #0e0e0e;
+    --panel:    #151515;
+    --border:   #1e3a4a;
+    --accent:   #00aaff;
+    --green:    #00cc66;
+    --red:      #ff4455;
+    --yellow:   #ffaa00;
+    --dim:      #555;
+    --text:     #ccd;
+    --subtext:  #778;
+    --font:     'Consolas', 'Courier New', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── Top bar ─────────────────────────────────────────────── */
+  #topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border);
+    background: #111;
+  }
+  #topbar h1 {
+    font-size: 15px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    flex: 1;
+  }
+  #topbar h1 span { color: var(--dim); font-size: 11px; letter-spacing: 1px; }
+  #status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--dim);
+    flex-shrink: 0;
+  }
+  #status-dot.ok    { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  #status-dot.error { background: var(--red); }
+
+  #key-area {
+    display: flex; align-items: center; gap: 6px;
+  }
+  #key-area label { color: var(--dim); font-size: 11px; }
+  #key-input {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    color: var(--subtext);
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 4px 8px;
+    width: 290px;
+    border-radius: 3px;
+    outline: none;
+  }
+  #key-input:focus { border-color: var(--accent); color: var(--text); }
+  #key-save {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    font-family: var(--font);
+    font-size: 11px;
+    font-weight: bold;
+    padding: 4px 10px;
+    cursor: pointer;
+    border-radius: 3px;
+  }
+  #key-save:hover { filter: brightness(1.2); }
+
+  /* ── Grid layout ─────────────────────────────────────────── */
+  #grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    grid-template-rows: auto auto;
+    gap: 1px;
+    background: var(--border);
+    border-top: none;
+  }
+
+  .panel {
+    background: var(--panel);
+    padding: 14px 16px;
+  }
+
+  .panel-title {
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Network panel ───────────────────────────────────────── */
+  #panel-network { grid-column: 1; grid-row: 1; }
+
+  .kv { display: flex; flex-direction: column; gap: 8px; }
+  .kv-row { display: flex; flex-direction: column; gap: 1px; }
+  .kv-key  { color: var(--dim); font-size: 10px; letter-spacing: 1px; }
+  .kv-val  { color: var(--text); font-size: 12px; word-break: break-all; }
+  .kv-val.ok     { color: var(--green); }
+  .kv-val.no     { color: var(--red); }
+  .kv-val.dim    { color: var(--subtext); }
+
+  /* ── Media panel ─────────────────────────────────────────── */
+  #panel-media { grid-column: 2; grid-row: 1; }
+
+  .media-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+
+  #search-input {
+    flex: 1;
+    background: #111;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 3px;
+    outline: none;
+  }
+  #search-input:focus { border-color: var(--accent); }
+
+  .btn {
+    background: #1e1e1e;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+  .btn:hover    { border-color: var(--accent); color: var(--accent); }
+  .btn.primary  { background: var(--accent); color: #000; border-color: var(--accent); font-weight: bold; }
+  .btn.primary:hover { filter: brightness(1.15); }
+  .btn.danger   { border-color: var(--red); color: var(--red); }
+  .btn.danger:hover { background: #2a0a0a; }
+  .btn.small    { font-size: 10px; padding: 4px 8px; }
+
+  .vol-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .vol-row label { color: var(--dim); font-size: 10px; letter-spacing: 1px; width: 52px; }
+  #vol-slider {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 4px;
+  }
+  #vol-val { color: var(--text); font-size: 12px; width: 36px; text-align: right; }
+
+  #now-playing {
+    color: var(--subtext);
+    font-size: 11px;
+    min-height: 16px;
+    font-style: italic;
+  }
+  #now-playing.active { color: var(--green); font-style: normal; }
+
+  /* ── Projects panel ──────────────────────────────────────── */
+  #panel-projects { grid-column: 1; grid-row: 2; }
+
+  .project-list { display: flex; flex-direction: column; gap: 6px; }
+  .project-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+  }
+  .project-item span { flex: 1; font-size: 12px; }
+  .project-item .status { font-size: 10px; color: var(--dim); }
+
+  /* ── Commands panel ──────────────────────────────────────── */
+  #panel-commands { grid-column: 2; grid-row: 2; }
+
+  .cmd-controls { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+
+  select {
+    background: #111;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 5px 8px;
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+    flex: 1;
+    min-width: 120px;
+  }
+  select:focus { border-color: var(--accent); }
+
+  #cmd-output {
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    color: var(--green);
+    font-family: var(--font);
+    font-size: 11px;
+    padding: 8px 10px;
+    height: 120px;
+    overflow-y: auto;
+    border-radius: 3px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ── Toast ───────────────────────────────────────────────── */
+  #toast {
+    position: fixed;
+    bottom: 20px; right: 20px;
+    background: #222;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    max-width: 360px;
+    z-index: 100;
+  }
+  #toast.show { opacity: 1; }
+  #toast.ok   { border-color: var(--green); }
+  #toast.err  { border-color: var(--red); color: var(--red); }
+
+  /* ── Misc ────────────────────────────────────────────────── */
+  .spinner {
+    display: inline-block;
+    width: 10px; height: 10px;
+    border: 2px solid var(--dim);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────────── -->
+<div id="topbar">
+  <h1>AETHERLINK <span>/ dashboard</span></h1>
+  <div id="status-dot" title="Agent status"></div>
+  <div id="key-area">
+    <label>KEY</label>
+    <input id="key-input" type="password" placeholder="paste AETHER_KEY here" autocomplete="off">
+    <button id="key-save" class="btn primary">Save</button>
+  </div>
+</div>
+
+<!-- ── Grid ─────────────────────────────────────────────────── -->
+<div id="grid">
+
+  <!-- Network -->
+  <div class="panel" id="panel-network">
+    <div class="panel-title">Network</div>
+    <div class="kv">
+      <div class="kv-row">
+        <span class="kv-key">LAN IPv4</span>
+        <span class="kv-val dim" id="net-ipv4">—</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">IPv6</span>
+        <span class="kv-val dim" id="net-ipv6">—</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Routable</span>
+        <span class="kv-val dim" id="net-routable">—</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Version</span>
+        <span class="kv-val dim" id="net-version">—</span>
+      </div>
+      <div class="kv-row">
+        <span class="kv-key">Uptime</span>
+        <span class="kv-val dim" id="net-uptime">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media -->
+  <div class="panel" id="panel-media">
+    <div class="panel-title">Media</div>
+
+    <div class="media-row">
+      <input id="search-input" type="text" placeholder="search YouTube… e.g. lofi hip hop">
+      <button id="btn-play" class="btn primary">▶ Play</button>
+      <button id="btn-stop" class="btn danger">■ Stop</button>
+    </div>
+
+    <div class="vol-row">
+      <label>VOLUME</label>
+      <input id="vol-slider" type="range" min="0" max="100" value="50">
+      <span id="vol-val">50%</span>
+    </div>
+
+    <div id="now-playing">idle</div>
+  </div>
+
+  <!-- Projects -->
+  <div class="panel" id="panel-projects">
+    <div class="panel-title">Projects</div>
+    <div class="project-list" id="project-list">
+      <span style="color:var(--dim);font-size:11px">Enter key to load…</span>
+    </div>
+  </div>
+
+  <!-- Commands -->
+  <div class="panel" id="panel-commands">
+    <div class="panel-title">Commands</div>
+
+    <div class="cmd-controls">
+      <select id="cmd-project"><option value="">— project —</option></select>
+      <select id="cmd-command"><option value="">— command —</option></select>
+      <button id="btn-run" class="btn primary">▶ Run</button>
+    </div>
+
+    <div id="cmd-output">Ready.</div>
+  </div>
+
+</div>
+
+<!-- ── Toast ─────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────
+let _key = localStorage.getItem('aether_key') || '';
+let _pollTimer = null;
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const ki = document.getElementById('key-input');
+  if (_key) ki.value = _key;
+
+  document.getElementById('key-save').addEventListener('click', saveKey);
+  ki.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+
+  document.getElementById('btn-play').addEventListener('click', playMusic);
+  document.getElementById('btn-stop').addEventListener('click', stopMusic);
+  document.getElementById('search-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') playMusic();
+  });
+
+  document.getElementById('vol-slider').addEventListener('input', e => {
+    document.getElementById('vol-val').textContent = e.target.value + '%';
+  });
+  document.getElementById('vol-slider').addEventListener('change', e => {
+    setVolume(parseInt(e.target.value));
+  });
+
+  document.getElementById('btn-run').addEventListener('click', runCommand);
+
+  if (_key) {
+    loadMeta();
+    startPolling();
+  }
+  pollStatus(); // always poll status (unauthenticated)
+});
+
+// ── Key ───────────────────────────────────────────────────────
+function saveKey() {
+  const val = document.getElementById('key-input').value.trim();
+  if (!val) { toast('Paste your AETHER_KEY first.', 'err'); return; }
+  _key = val;
+  localStorage.setItem('aether_key', _key);
+  toast('Key saved.', 'ok');
+  loadMeta();
+  startPolling();
+}
+
+function authHeader() {
+  return { 'X-Aether-Key': _key, 'Content-Type': 'application/json' };
+}
+
+// ── Polling ───────────────────────────────────────────────────
+function startPolling() {
+  if (_pollTimer) clearInterval(_pollTimer);
+  _pollTimer = setInterval(() => {
+    pollStatus();
+    if (_key) pollMedia();
+  }, 5000);
+  pollMedia();
+}
+
+async function pollStatus() {
+  try {
+    const r = await fetch('/status');
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+
+    document.getElementById('net-ipv4').textContent     = d.network?.lan_ipv4  || '—';
+    document.getElementById('net-ipv6').textContent     = d.network?.global_ipv6 || '—';
+    document.getElementById('net-version').textContent  = d.version || '—';
+
+    const routable = d.network?.globally_routable;
+    const rEl = document.getElementById('net-routable');
+    rEl.textContent = routable ? 'YES' : 'NO';
+    rEl.className   = 'kv-val ' + (routable ? 'ok' : 'no');
+
+    const uptime = d.uptime_seconds;
+    document.getElementById('net-uptime').textContent = uptime !== undefined
+      ? formatUptime(uptime) : '—';
+
+    setDot('ok');
+  } catch {
+    setDot('error');
+    document.getElementById('net-uptime').textContent = 'unreachable';
+  }
+}
+
+async function pollMedia() {
+  if (!_key) return;
+  try {
+    const r = await fetch('/play/status', { headers: authHeader() });
+    if (!r.ok) return;
+    const d = await r.json();
+
+    const vol = d.volume ?? 50;
+    document.getElementById('vol-slider').value   = vol;
+    document.getElementById('vol-val').textContent = vol + '%';
+
+    const np = document.getElementById('now-playing');
+    const title = d.now_playing?.title;
+    if (title) {
+      np.textContent = '♪ ' + title;
+      np.className   = 'active';
+    } else {
+      np.textContent = 'idle';
+      np.className   = '';
+    }
+  } catch {}
+}
+
+// ── Meta (projects + commands) ────────────────────────────────
+async function loadMeta() {
+  if (!_key) return;
+  try {
+    const r = await fetch('/execute/meta', { headers: authHeader() });
+    if (!r.ok) { toast('Auth failed — check your key.', 'err'); return; }
+    const d = await r.json();
+    renderProjects(d.projects || []);
+    renderCommands(d.projects || [], d.commands || []);
+  } catch (e) {
+    toast('Could not reach agent: ' + e.message, 'err');
+  }
+}
+
+function renderProjects(projects) {
+  const list = document.getElementById('project-list');
+  if (!projects.length) {
+    list.innerHTML = '<span style="color:var(--dim);font-size:11px">No projects in path_map.json</span>';
+    return;
+  }
+  list.innerHTML = projects.map(p => `
+    <div class="project-item">
+      <span>${p}</span>
+      <button class="btn small" onclick="openDir('${p}')">Open</button>
+    </div>
+  `).join('');
+}
+
+function renderCommands(projects, commands) {
+  const ps = document.getElementById('cmd-project');
+  const cs = document.getElementById('cmd-command');
+
+  ps.innerHTML = '<option value="">— project —</option>' +
+    projects.map(p => `<option value="${p}">${p}</option>`).join('');
+
+  cs.innerHTML = '<option value="">— command —</option>' +
+    commands.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+// ── Actions ───────────────────────────────────────────────────
+async function openDir(project) {
+  if (!_key) { toast('Set your key first.', 'err'); return; }
+  try {
+    const r = await fetch('/execute', {
+      method: 'POST',
+      headers: authHeader(),
+      body: JSON.stringify({ action: 'open_directory', target: project }),
+    });
+    const d = await r.json();
+    if (d.status === 'ok') toast('Opened ' + project, 'ok');
+    else toast(d.message || 'Error', 'err');
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function runCommand() {
+  if (!_key) { toast('Set your key first.', 'err'); return; }
+  const project = document.getElementById('cmd-project').value;
+  const command = document.getElementById('cmd-command').value;
+  if (!project || !command) { toast('Select a project and command.', 'err'); return; }
+
+  const out = document.getElementById('cmd-output');
+  out.textContent = '$ ' + command + ' [' + project + ']\nRunning…';
+
+  try {
+    const r = await fetch('/execute', {
+      method: 'POST',
+      headers: authHeader(),
+      body: JSON.stringify({ action: 'run_command', target: project, command }),
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      out.textContent =
+        '$ ' + command + ' [' + project + ']\n' +
+        'exit ' + d.returncode + '\n' +
+        (d.stdout || '(no output)');
+    } else {
+      out.textContent = 'Error: ' + (d.message || JSON.stringify(d));
+    }
+  } catch (e) { out.textContent = 'Error: ' + e.message; }
+}
+
+async function playMusic() {
+  if (!_key) { toast('Set your key first.', 'err'); return; }
+  const q = document.getElementById('search-input').value.trim();
+  if (!q) { toast('Enter a search query.', 'err'); return; }
+
+  const np = document.getElementById('now-playing');
+  np.textContent = '⌛ Searching…';
+  np.className   = '';
+
+  try {
+    const r = await fetch('/play', {
+      method: 'POST',
+      headers: authHeader(),
+      body: JSON.stringify({ action: 'play', query: q }),
+    });
+    const d = await r.json();
+    if (d.status === 'playing') {
+      np.textContent = '♪ ' + (d.title || q);
+      np.className   = 'active';
+      toast('Playing: ' + d.title, 'ok');
+    } else {
+      np.textContent = 'idle';
+      toast(d.message || 'Playback failed', 'err');
+    }
+  } catch (e) {
+    np.textContent = 'idle';
+    toast(e.message, 'err');
+  }
+}
+
+async function stopMusic() {
+  if (!_key) { toast('Set your key first.', 'err'); return; }
+  try {
+    const r = await fetch('/play', {
+      method: 'POST',
+      headers: authHeader(),
+      body: JSON.stringify({ action: 'stop' }),
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      document.getElementById('now-playing').textContent = 'idle';
+      document.getElementById('now-playing').className   = '';
+      toast('Stopped.', 'ok');
+    } else {
+      toast(d.message || 'Nothing playing.', 'err');
+    }
+  } catch (e) { toast(e.message, 'err'); }
+}
+
+async function setVolume(level) {
+  if (!_key) return;
+  try {
+    await fetch('/play/volume', {
+      method: 'POST',
+      headers: authHeader(),
+      body: JSON.stringify({ level }),
+    });
+  } catch {}
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function setDot(state) {
+  const d = document.getElementById('status-dot');
+  d.className = state;
+}
+
+function formatUptime(s) {
+  if (s < 60)   return s + 's';
+  if (s < 3600) return Math.floor(s / 60) + 'm ' + (s % 60) + 's';
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return h + 'h ' + m + 'm';
+}
+
+let _toastTimer = null;
+function toast(msg, type = 'ok') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className   = 'show ' + type;
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => { el.className = ''; }, 3500);
+}
+</script>
+</body>
+</html>

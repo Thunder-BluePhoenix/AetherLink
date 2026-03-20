@@ -8,10 +8,28 @@
 #     https://www.gnu.org/licenses/gpl-3.0.txt
 
 """
-tests/test_routes.py — Phase 2 + 3: FastAPI route integration tests
+tests/test_routes.py — Phase 2 + 3 + GUI: FastAPI route integration tests
 
 Uses FastAPI TestClient (no real server). Auth header injected from .env.
 """
+
+
+# ---------------------------------------------------------------------------
+# / (browser dashboard)
+# ---------------------------------------------------------------------------
+
+class TestDashboard:
+
+    def test_root_returns_200(self, client):
+        r = client.get("/")
+        assert r.status_code == 200
+
+    def test_root_is_html(self, client):
+        r = client.get("/")
+        assert "text/html" in r.headers["content-type"]
+
+    def test_root_contains_aetherlink(self, client):
+        assert "AetherLink" in client.get("/").text
 
 
 # ---------------------------------------------------------------------------

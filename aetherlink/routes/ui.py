@@ -15,18 +15,22 @@
 # limitations under the Licenses.
 
 """
-aetherlink/main.py — FastAPI application factory
+aetherlink/routes/ui.py — Browser dashboard
 
-Registers all routers and returns the app instance.
-Server startup is handled by run.py (uvicorn).
+Serves the single-page dashboard at GET /.
+No auth required to load the page — the JS prompts for and stores the key.
 """
 
-from fastapi import FastAPI
-from .routes import execute, play, status, ui
+import os
 
-app = FastAPI(title="AetherLink", version="0.1.0", docs_url=None, redoc_url=None)
+from fastapi import APIRouter
+from fastapi.responses import FileResponse
 
-app.include_router(ui.router)
-app.include_router(status.router)
-app.include_router(execute.router)
-app.include_router(play.router)
+router = APIRouter()
+
+_STATIC = os.path.join(os.path.dirname(__file__), "..", "static")
+
+
+@router.get("/", include_in_schema=False)
+async def dashboard() -> FileResponse:
+    return FileResponse(os.path.join(_STATIC, "index.html"), media_type="text/html")

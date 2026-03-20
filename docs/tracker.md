@@ -23,7 +23,7 @@
 | M02 | File Navigator | Phase 2 | `[x]` Done | Code complete + 63/63 tests passing |
 | M03 | Commander | Phase 2 | `[x]` Done | Code complete + 63/63 tests passing |
 | M04 | Aether Audio | Phase 3 | `[~]` In Progress | Code complete — blocked on MPV/VLC install for live test |
-| M05 | Deployment | Phase 5 | `[ ]` Pending | Requires all phases |
+| M05 | Deployment | Phase 5 | `[~]` In Progress | Service wrapper + installer done — awaiting install + reboot test |
 
 ---
 
@@ -101,12 +101,12 @@
 
 | # | Task | Status | Notes |
 |---|---|---|---|
-| 5.1 | `pywin32` service wrapper (`AetherLinkService.py`) | `[ ]` | — |
-| 5.2 | `.env` secrets accessible under SYSTEM service account | `[ ]` | — |
-| 5.3 | Windows Firewall inbound rule for port 58008 (persistent) | `[ ]` | — |
-| 5.4 | Service set to Automatic start with recovery actions | `[ ]` | — |
-| 5.5 | Log rotation configured (`RotatingFileHandler`) | `[ ]` | — |
-| 5.6 | Cold boot end-to-end test: all milestones pass after reboot | `[ ]` | — |
+| 5.1 | `pywin32` service wrapper (`AetherLinkService.py`) | `[x]` | Subprocess launcher + pipe capture; `install/start/stop/remove` CLI |
+| 5.2 | `.env` secrets accessible under SYSTEM service account | `[x]` | Absolute `BASE_DIR` paths in service; `.env` must be in project root |
+| 5.3 | Windows Firewall inbound rule for port 58008 (persistent) | `[x]` | Included in `scripts/install_service.ps1` (idempotent) |
+| 5.4 | Service set to Automatic start with recovery actions | `[x]` | `install_service.ps1` sets Automatic + sc.exe failure restart×3 after 60s |
+| 5.5 | Log rotation configured (`RotatingFileHandler`) | `[x]` | `logs/aetherlink.log` — 5 MB max, 3 backups; uvicorn output piped in |
+| 5.6 | Cold boot end-to-end test: all milestones pass after reboot | `[ ]` | Manual — run install_service.ps1, reboot, test `/status` from LAN |
 
 ---
 
@@ -128,5 +128,5 @@
 | Phase 2 | 5 | 5 | 0 | 0 |
 | Phase 3 | 5 | 4 | 1 | 0 |
 | Phase 4 | 6 | 3 | 0 | 0 |
-| Phase 5 | 6 | 0 | 0 | 0 |
-| **Total** | **28** | **15** | **2** | **0** |
+| Phase 5 | 6 | 5 | 1 | 0 |
+| **Total** | **28** | **20** | **3** | **0** |
